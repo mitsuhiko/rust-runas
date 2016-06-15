@@ -1,4 +1,6 @@
+use std::io;
 use std::mem;
+use std::ffi::OsStr;
 use std::os::raw::c_ushort;
 use std::os::windows::ffi::OsStrExt;
 use std::process::ExitStatus;
