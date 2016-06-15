@@ -2,7 +2,7 @@
 name = "runas"
 version = "0.1.0"
 authors = ["Armin Ronacher <armin.ronacher@active-4.com>"]
-keywords = ["admin", "root", "runas", "sudo", "elevate", "elevated"]
+keywords = ["runas", "sudo", "elevate", "elevated"]
 description = "Run a command as root (sudo)"
 documentation = "http://mitsuhiko.github.io/rust-runas/"
 license = "BSD-3-Clause"
