@@ -2,7 +2,6 @@
 name = "runas"
 version = "0.1.0"
 authors = ["Armin Ronacher <armin.ronacher@active-4.com>"]
-build = "build.rs"
 keywords = ["admin", "root", "runas", "sudo", "elevate", "elevated"]
 description = "Run a command as root (sudo)"
 documentation = "http://mitsuhiko.github.io/rust-runas/"
