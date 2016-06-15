@@ -1,0 +1,8 @@
+[package]
+name = "runas"
+version = "0.1.0"
+authors = ["Armin Ronacher <armin.ronacher@active-4.com>"]
+build = "build.rs"
+
+[build-dependencies]
+gcc = "0.3"
