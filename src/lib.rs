@@ -1,11 +1,43 @@
 //! This library implements basic support for running a command in an elevated context.
 //!
 //! In particular this runs a command through "sudo" or other platform equivalents.
+//!
+//! ## Basic Usage
+//!
+//! The library provides a single struct called `Command` which largely follows the
+//! API of `std::process::Command`.  However it does not support capturing output or
+//! gives any guarantees for the working directory or environment.  This is because
+//! the platform APIs do not have support for that either in some cases.
+//!
+//! In particular the working directory is always the system32 folder on windows and
+//! the environment variables are always the ones of the initial system session on
+//! OS X if the GUI mode is used.
+//!
+//! ```rust,no_run
+//! use runas::Command;
+//!
+//! let status = try!(Command::new("rm")
+//!     .arg("/usr/local/my-app")
+//!     .status());
+//! ```
+//!
+//! ## Platform Support
+//!
+//! The following platforms are supported:
+//!
+//! * Windows: always GUI mode
+//! * OS X: GUI and CLI mode
+//! * Linux: CLI mode
 use std::io;
-use std::mem;
 use std::process::ExitStatus;
 use std::ffi::{OsStr, OsString};
-use std::os::raw::c_ushort;
+
+#[cfg(windows)]
+mod impl_windows;
+#[cfg(unix)]
+mod impl_unix;
+#[cfg(target_os="macos")]
+mod impl_darwin;
 
 /// A process builder for elevated execution
 pub struct Command {
@@ -13,7 +45,7 @@ pub struct Command {
     args: Vec<OsString>,
     force_prompt: bool,
     hide: bool,
-    from_gui: bool,
+    gui: bool,
 }
 
 /// The `Command` type acts as a process builder for spawning programs that run in
@@ -36,7 +68,7 @@ impl Command {
             command: program.as_ref().to_os_string(),
             args: vec![],
             hide: false,
-            from_gui: false,
+            gui: false,
             force_prompt: true,
         }
     }
@@ -64,11 +96,13 @@ impl Command {
     }
 
     /// Controls the GUI context.  The default behavior is to assume that the program is
-    /// launched from a command line (not from GUI).  This primarily controls how the
+    /// launched from a command line (not using a GUI).  This primarily controls how the
     /// elevation prompt is rendered.  On some platforms like Windows the elevation prompt
     /// is always a GUI element.
-    pub fn from_gui(&mut self, val: bool) -> &mut Command {
-        self.from_gui = val;
+    ///
+    /// If the preferred mode is not available it falls back to the other automatically.
+    pub fn gui(&mut self, val: bool) -> &mut Command {
+        self.gui = val;
         self
     }
 
@@ -82,57 +116,12 @@ impl Command {
     /// Executes a command as a child process, waiting for it to finish and
     /// collecting its exit status.
     pub fn status(&mut self) -> io::Result<ExitStatus> {
+        #[cfg(windows)]
+        use impl_windows::runas_impl;
+        #[cfg(all(unix, not(target_os="macos")))]
+        use impl_unix::runas_impl;
+        #[cfg(all(unix, target_os="macos"))]
+        use impl_darwin::runas_impl;
         runas_impl(&self)
     }
-}
-
-#[cfg(windows)]
-fn runas_impl(cmd: &Command) -> io::Result<ExitStatus> {
-    use std::os::windows::ffi::OsStrExt;
-    extern "C" {
-        fn rust_win_runas(cmd: *const c_ushort, args: *const c_ushort, show: i32) -> u32;
-    }
-
-    let mut params = String::new();
-    for arg in cmd.args.iter() {
-        let arg = arg.to_string_lossy();
-        params.push(' ');
-        if arg.len() == 0 {
-            params.push_str("\"\"");
-        } else if arg.find(&[' ', '\t', '"'][..]).is_none() {
-            params.push_str(&arg);
-        } else {
-            params.push('"');
-            for c in arg.chars() {
-                match c {
-                    '\\' => params.push_str("\\\\"),
-                    '"' => params.push_str("\\\""),
-                    c => params.push(c)
-                }
-            }
-            params.push('"');
-        }
-    }
-
-    let file = OsStr::new(&cmd.command).encode_wide().chain(Some(0)).collect::<Vec<_>>();
-    let params = OsStr::new(&params).encode_wide().chain(Some(0)).collect::<Vec<_>>();
-
-    unsafe {
-        let rv = rust_win_runas(file.as_ptr(), params.as_ptr(), if cmd.hide { 0 } else { 1 });
-        Ok(mem::transmute(rv))
-    }
-}
-
-#[cfg(not(windows))]
-fn runas_impl(cmd: &Command) -> io::Result<ExitStatus> {
-    use std::process;
-    let mut cmd = process::Command::new("sudo");
-    if cmd.force_prompt {
-        cmd.arg("-k");
-    }
-    cmd
-        .arg("--")
-        .arg(cmd.command)
-        .args(cmd.args)
-        .status()
 }
