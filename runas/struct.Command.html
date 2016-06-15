@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Command` struct in crate `runas`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Command">
+
+    <title>runas::Command - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>runas</a></p><script>window.sidebarCurrent = {name: 'Command', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>runas</a>::<wbr><a class='struct' href=''>Command</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-59' class='srclink' href='../src/runas/src/lib.rs.html#43-49' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Command {
+    // some fields omitted
+}</pre><div class='docblock'><p>A process builder for elevated execution</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../runas/struct.Command.html' title='runas::Command'>Command</a></code></h3><div class='docblock'><p>The <code>Command</code> type acts as a process builder for spawning programs that run in
+an elevated context.</p>
+
+<p>Example:</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>runas</span>::<span class='ident'>Command</span>;
+<span class='kw'>let</span> <span class='ident'>status</span> <span class='op'>=</span> <span class='ident'>Command</span>::<span class='ident'>new</span>(<span class='string'>&quot;cmd&quot;</span>).<span class='ident'>status</span>();</pre>
+</div><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/ffi/os_str/struct.OsStr.html' title='std::ffi::os_str::OsStr'>OsStr</a>&gt;&gt;(program: S) -&gt; <a class='struct' href='../runas/struct.Command.html' title='runas::Command'>Command</a></code></h4>
+<div class='docblock'><p>Creates a new command type for a given program.</p>
+
+<p>The default configuration is to spawn without arguments, to be visible and
+to not be launched from a GUI context.</p>
+</div><h4 id='method.arg' class='method'><code>fn <a href='#method.arg' class='fnname'>arg</a>&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/ffi/os_str/struct.OsStr.html' title='std::ffi::os_str::OsStr'>OsStr</a>&gt;&gt;(&amp;mut self, arg: S) -&gt; &amp;mut <a class='struct' href='../runas/struct.Command.html' title='runas::Command'>Command</a></code></h4>
+<div class='docblock'><p>Add an argument to pass to the program.</p>
+</div><h4 id='method.args' class='method'><code>fn <a href='#method.args' class='fnname'>args</a>&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html' title='core::convert::AsRef'>AsRef</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/ffi/os_str/struct.OsStr.html' title='std::ffi::os_str::OsStr'>OsStr</a>&gt;&gt;(&amp;mut self, args: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>S<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; &amp;mut <a class='struct' href='../runas/struct.Command.html' title='runas::Command'>Command</a></code></h4>
+<div class='docblock'><p>Add multiple arguments to pass to the program.</p>
+</div><h4 id='method.show' class='method'><code>fn <a href='#method.show' class='fnname'>show</a>(&amp;mut self, val: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; &amp;mut <a class='struct' href='../runas/struct.Command.html' title='runas::Command'>Command</a></code></h4>
+<div class='docblock'><p>Controls the visibility of the program on supported platforms.  The default is
+to launch the program visible.</p>
+</div><h4 id='method.gui' class='method'><code>fn <a href='#method.gui' class='fnname'>gui</a>(&amp;mut self, val: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; &amp;mut <a class='struct' href='../runas/struct.Command.html' title='runas::Command'>Command</a></code></h4>
+<div class='docblock'><p>Controls the GUI context.  The default behavior is to assume that the program is
+launched from a command line (not using a GUI).  This primarily controls how the
+elevation prompt is rendered.  On some platforms like Windows the elevation prompt
+is always a GUI element.</p>
+
+<p>If the preferred mode is not available it falls back to the other automatically.</p>
+</div><h4 id='method.force_prompt' class='method'><code>fn <a href='#method.force_prompt' class='fnname'>force_prompt</a>(&amp;mut self, val: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; &amp;mut <a class='struct' href='../runas/struct.Command.html' title='runas::Command'>Command</a></code></h4>
+<div class='docblock'><p>Can disable the prompt forcing for supported platforms.  Mostly this allows sudo
+on unix platforms to not prompt for a password.</p>
+</div><h4 id='method.status' class='method'><code>fn <a href='#method.status' class='fnname'>status</a>(&amp;mut self) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/std/process/struct.ExitStatus.html' title='std::process::ExitStatus'>ExitStatus</a>&gt;</code></h4>
+<div class='docblock'><p>Executes a command as a child process, waiting for it to finish and
+collecting its exit status.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "runas";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
