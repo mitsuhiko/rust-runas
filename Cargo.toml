@@ -1,9 +1,10 @@
 [package]
 name = "runas"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Armin Ronacher <armin.ronacher@active-4.com>"]
 keywords = ["runas", "sudo", "elevate", "elevated"]
 description = "Run a command as root (sudo)"
+homepage = "https://github.com/mitsuhiko/rust-runas"
 documentation = "http://mitsuhiko.github.io/rust-runas/"
 license = "BSD-3-Clause"
 readme = "README.md"
