@@ -8,7 +8,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 
-int rust_darwin_gui_runas(const char *prog, const char **argv)
+int rust_darwin_gui_runas(const char *prog, char *const  _Nonnull * _Nonnull argv)
 {
     AuthorizationRef authref = 0;
     FILE *pipe = 0;
