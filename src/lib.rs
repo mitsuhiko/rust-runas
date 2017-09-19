@@ -16,9 +16,10 @@
 //! ```rust,no_run
 //! use runas::Command;
 //!
-//! let status = try!(Command::new("rm")
+//! let status = Command::new("rm")
 //!     .arg("/usr/local/my-app")
-//!     .status());
+//!     .status()
+//!     .unwrap();
 //! ```
 //!
 //! ## Platform Support
