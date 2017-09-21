@@ -6,9 +6,10 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
 
 
-int rust_darwin_gui_runas(const char *prog, char *const  _Nonnull * _Nonnull argv)
+int rust_darwin_gui_runas(const char *prog, const char **argv)
 {
     AuthorizationRef authref = 0;
     FILE *pipe = 0;
