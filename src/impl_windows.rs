@@ -5,7 +5,7 @@ use std::os::raw::c_ushort;
 use std::os::windows::ffi::OsStrExt;
 use std::process::ExitStatus;
 
-use Command;
+use crate::Command;
 
 extern "C" {
     fn rust_win_runas(cmd: *const c_ushort, args: *const c_ushort, show: i32) -> u32;
