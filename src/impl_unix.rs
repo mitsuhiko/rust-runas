@@ -1,4 +1,4 @@
-extern crate which;
+use which;
 
 use std::io;
 use std::process;

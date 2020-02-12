@@ -1,4 +1,4 @@
-extern crate runas;
+use runas;
 
 fn main() {
     println!("Running id as root:");

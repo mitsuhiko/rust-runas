@@ -1,4 +1,4 @@
-extern crate cc;
+use cc;
 
 use std::env;
 
