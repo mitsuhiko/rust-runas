@@ -117,7 +117,7 @@ impl Command {
     /// collecting its exit status.
     pub fn status(&mut self) -> io::Result<ExitStatus> {
         #[cfg(all(unix, target_os = "macos"))]
-        use impl_darwin::runas_impl;
+        use crate::impl_darwin::runas_impl;
         #[cfg(all(unix, not(target_os = "macos")))]
         use impl_unix::runas_impl;
         #[cfg(windows)]

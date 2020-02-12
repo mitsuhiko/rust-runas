@@ -7,8 +7,8 @@ use std::path::{Path, PathBuf};
 use std::process::ExitStatus;
 use std::ptr;
 
-use impl_unix::runas_impl as runas_sudo_impl;
-use Command;
+use crate::impl_unix::runas_impl as runas_sudo_impl;
+use crate::Command;
 
 extern "C" {
     fn rust_darwin_gui_runas(cmd: *const i8, argv: *const *const i8) -> u32;
