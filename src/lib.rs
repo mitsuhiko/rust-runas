@@ -29,16 +29,16 @@
 //! * Windows: always GUI mode
 //! * OS X: GUI and CLI mode
 //! * Linux: CLI mode
+use std::ffi::{OsStr, OsString};
 use std::io;
 use std::process::ExitStatus;
-use std::ffi::{OsStr, OsString};
 
-#[cfg(windows)]
-mod impl_windows;
+#[cfg(target_os = "macos")]
+mod impl_darwin;
 #[cfg(unix)]
 mod impl_unix;
-#[cfg(target_os="macos")]
-mod impl_darwin;
+#[cfg(windows)]
+mod impl_windows;
 
 /// A process builder for elevated execution
 pub struct Command {
@@ -59,7 +59,6 @@ pub struct Command {
 /// let status = Command::new("cmd").status();
 /// ```
 impl Command {
-
     /// Creates a new command type for a given program.
     ///
     /// The default configuration is to spawn without arguments, to be visible and
@@ -117,12 +116,12 @@ impl Command {
     /// Executes a command as a child process, waiting for it to finish and
     /// collecting its exit status.
     pub fn status(&mut self) -> io::Result<ExitStatus> {
+        #[cfg(all(unix, target_os = "macos"))]
+        use impl_darwin::runas_impl;
+        #[cfg(all(unix, not(target_os = "macos")))]
+        use impl_unix::runas_impl;
         #[cfg(windows)]
         use impl_windows::runas_impl;
-        #[cfg(all(unix, not(target_os="macos")))]
-        use impl_unix::runas_impl;
-        #[cfg(all(unix, target_os="macos"))]
-        use impl_darwin::runas_impl;
         runas_impl(&self)
     }
 }

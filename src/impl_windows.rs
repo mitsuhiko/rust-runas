@@ -1,6 +1,6 @@
+use std::ffi::OsStr;
 use std::io;
 use std::mem;
-use std::ffi::OsStr;
 use std::os::raw::c_ushort;
 use std::os::windows::ffi::OsStrExt;
 use std::process::ExitStatus;
@@ -26,18 +26,28 @@ pub fn runas_impl(cmd: &Command) -> io::Result<ExitStatus> {
                 match c {
                     '\\' => params.push_str("\\\\"),
                     '"' => params.push_str("\\\""),
-                    c => params.push(c)
+                    c => params.push(c),
                 }
             }
             params.push('"');
         }
     }
 
-    let file = OsStr::new(&cmd.command).encode_wide().chain(Some(0)).collect::<Vec<_>>();
-    let params = OsStr::new(&params).encode_wide().chain(Some(0)).collect::<Vec<_>>();
+    let file = OsStr::new(&cmd.command)
+        .encode_wide()
+        .chain(Some(0))
+        .collect::<Vec<_>>();
+    let params = OsStr::new(&params)
+        .encode_wide()
+        .chain(Some(0))
+        .collect::<Vec<_>>();
 
     unsafe {
         let show = if cmd.hide { 0 } else { 1 };
-        Ok(mem::transmute(rust_win_runas(file.as_ptr(), params.as_ptr(), show)))
+        Ok(mem::transmute(rust_win_runas(
+            file.as_ptr(),
+            params.as_ptr(),
+            show,
+        )))
     }
 }
