@@ -4,6 +4,7 @@ use std::io;
 use std::mem;
 use std::os::windows::ffi::OsStrExt;
 use std::process::ExitStatus;
+use std::os::windows::process::ExitStatusExt;
 
 use crate::Command;
 
@@ -39,12 +40,13 @@ pub fn runas_impl(cmd: &Command) -> io::Result<ExitStatus> {
         .collect::<Vec<_>>();
 
     unsafe {
-        use winapi::um::combaseapi::CoInitializeEx;
+        use winapi::um::combaseapi::{CoInitializeEx, CoUninitialize};
         use winapi::um::objbase::{COINIT_APARTMENTTHREADED, COINIT_DISABLE_OLE1DDE};
         use winapi::um::shellapi::{SHELLEXECUTEINFOW, ShellExecuteExW, SEE_MASK_NOASYNC, SEE_MASK_NOCLOSEPROCESS};
         use winapi::um::winbase::INFINITE;
         use winapi::um::winuser::{SW_HIDE, SW_NORMAL};
-        use winapi::shared::minwindef::{DWORD, FALSE};
+        use winapi::shared::winerror::SUCCEEDED;
+        use winapi::shared::minwindef::{DWORD, TRUE};
         use winapi::um::synchapi::WaitForSingleObject;
         use winapi::um::processthreadsapi::GetExitCodeProcess;
         use std::ptr;
@@ -55,7 +57,7 @@ pub fn runas_impl(cmd: &Command) -> io::Result<ExitStatus> {
         let mut sei = SHELLEXECUTEINFOW { 
             cbSize: mem::size_of::<SHELLEXECUTEINFOW>() as u32,
             fMask: SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS,
-            lpVerb: (*"runas").encode_utf16().collect::<Vec<u16>>().as_ptr(),
+            lpVerb: (*"runas\0").encode_utf16().collect::<Vec<u16>>().as_ptr(),
             lpFile: file.as_ptr(),
             lpParameters: params.as_ptr(),
             nShow: show,
@@ -70,18 +72,23 @@ pub fn runas_impl(cmd: &Command) -> io::Result<ExitStatus> {
             lpIDList: ptr::null_mut(),
         };
 
-        CoInitializeEx(ptr::null_mut(), COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+        let coinitializeex_result = CoInitializeEx(ptr::null_mut(), COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+        
+        let mut succesfull = ShellExecuteExW(&mut sei) == TRUE && sei.hProcess != ptr::null_mut();
 
-        if ShellExecuteExW(&mut sei) == FALSE || sei.hProcess == ptr::null_mut() {
-            return Ok(mem::transmute(-1));
+        if succesfull {
+            WaitForSingleObject(sei.hProcess, INFINITE);
+            succesfull = GetExitCodeProcess(sei.hProcess, &mut code) != 0;
         }
-
-        WaitForSingleObject(sei.hProcess, INFINITE);
-
-        if GetExitCodeProcess(sei.hProcess, &mut code) == 0 {
-            return Ok(mem::transmute(-1));
+        
+        if SUCCEEDED(coinitializeex_result) {
+            CoUninitialize();
         }
-
-        Ok(mem::transmute(code))
+        
+        if succesfull {
+            Ok(ExitStatus::from_raw(code))
+        } else {
+            Err(std::io::Error::last_os_error())
+        }
     }
 }
