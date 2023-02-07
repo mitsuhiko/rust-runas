@@ -122,6 +122,6 @@ impl Command {
         use impl_unix::runas_impl;
         #[cfg(windows)]
         use impl_windows::runas_impl;
-        runas_impl(&self)
+        runas_impl(self)
     }
 }

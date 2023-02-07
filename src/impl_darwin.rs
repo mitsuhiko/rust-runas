@@ -17,7 +17,7 @@ extern "C" {
 fn find_exe<P: AsRef<Path>>(exe_name: P) -> Option<PathBuf> {
     let exe_name = exe_name.as_ref().as_os_str();
     if let Some(exe) = exe_name.to_str() {
-        if exe.starts_with("/") || exe.starts_with("./") {
+        if exe.starts_with('/') || exe.starts_with("./") {
             return Some(PathBuf::from(exe_name));
         }
     }
@@ -25,7 +25,7 @@ fn find_exe<P: AsRef<Path>>(exe_name: P) -> Option<PathBuf> {
     env::var_os("PATH").and_then(|paths| {
         env::split_paths(&paths)
             .filter_map(|dir| {
-                let full_path = dir.join(&exe_name);
+                let full_path = dir.join(exe_name);
                 if full_path.is_file() {
                     Some(full_path)
                 } else {
@@ -72,8 +72,8 @@ fn runas_gui_impl(cmd: &Command) -> io::Result<ExitStatus> {
 
 pub fn runas_impl(cmd: &Command) -> io::Result<ExitStatus> {
     if cmd.gui {
-        runas_gui_impl(&cmd)
+        runas_gui_impl(cmd)
     } else {
-        runas_sudo_impl(&cmd)
+        runas_sudo_impl(cmd)
     }
 }

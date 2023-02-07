@@ -1,5 +1,3 @@
-use which;
-
 use std::io;
 use std::process;
 use std::process::ExitStatus;
