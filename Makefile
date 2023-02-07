@@ -1,19 +1,11 @@
+.PHONY: build
 build:
 	@cargo build
 
-watch:
-	@cargo watch
-
-watch-docs:
-	@cargo watch build "doc --no-deps"
-
+.PHONY: test
 test:
 	@cargo test
 
-docs: build
+.PHONY: docs
+docs:
 	@cargo doc --no-deps
-
-upload-docs: docs
-	@./upload-docs.sh
-
-.PHONY: build test docs upload-docs
