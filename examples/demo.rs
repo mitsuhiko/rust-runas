@@ -22,7 +22,7 @@ fn main() {
     println!(
         "Status: {}",
         runas::Command::new("id")
-            .gui(true)
+            .gui(false)
             .force_prompt(false)
             .status()
             .expect("failed to execute")
