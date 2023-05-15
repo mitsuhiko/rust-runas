@@ -7,7 +7,7 @@ fn shell() -> String {
     }
     #[cfg(unix)]
     {
-        std::env::var("SHELL").unwrap_or_else(|| "bash".into())
+        std::env::var("SHELL").unwrap_or_else(|_| "bash".into())
     }
 }
 
