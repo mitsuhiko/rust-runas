@@ -1,11 +1,27 @@
 use runas;
 
+#[cfg(windows)]
 fn main() {
-    println!("Running id as root:");
+    println!("Running whoami /priv");
     println!(
         "Status: {}",
-        runas::Command::new("touch")
-            .arg("/tmp/test.foo")
+        runas::Command::new("cmd")
+            .arg("/k")
+            .arg("whoami")
+            .arg("/priv")
+            .gui(true)
+            .force_prompt(false)
+            .status()
+            .expect("failed to execute")
+    );
+}
+
+#[cfg(unix)]
+fn main() {
+    println!("Running id");
+    println!(
+        "Status: {}",
+        runas::Command::new("id")
             .gui(true)
             .force_prompt(false)
             .status()
