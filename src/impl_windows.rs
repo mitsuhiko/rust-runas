@@ -19,7 +19,7 @@ use crate::Command;
 
 unsafe fn win_runas(cmd: *const c_ushort, args: *const c_ushort, show: bool) -> u32 {
     let mut code = 0;
-    let sei: SHELLEXECUTEINFOW = mem::zeroed();
+    let mut sei: SHELLEXECUTEINFOW = mem::zeroed();
     let verb = "runas\0".encode_utf16().collect::<Vec<u16>>();
     CoInitializeEx(
         ptr::null(),
