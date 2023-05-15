@@ -17,7 +17,7 @@ jobs:
       - name: Test
         run: make test
 
-  build-stable:
+  build-stable-linux:
     name: Build on 1.48.0 Linux
     runs-on: ubuntu-latest
 
@@ -31,7 +31,7 @@ jobs:
       - name: Test
         run: cargo check --all-features
 
-  build-stable:
+  build-stable-mac:
     name: Build on 1.48.0 macOS
     runs-on: macos-latest
 
@@ -45,7 +45,7 @@ jobs:
       - name: Test
         run: cargo check --all-features
 
-  build-stable:
+  build-stable-win:
     name: Build on 1.48.0 Windows
     runs-on: windows-latest
 
