@@ -4,6 +4,7 @@ use std::mem;
 use std::os::raw::c_ushort;
 use std::os::windows::ffi::OsStrExt;
 use std::process::ExitStatus;
+use std::ptr;
 
 use windows_sys::Win32::System::Com::{
     CoInitializeEx, COINIT_APARTMENTTHREADED, COINIT_DISABLE_OLE1DDE,
@@ -17,25 +18,28 @@ use windows_sys::Win32::UI::WindowsAndMessaging::{SW_HIDE, SW_SHOW};
 use crate::Command;
 
 unsafe fn win_runas(cmd: *const c_ushort, args: *const c_ushort, show: bool) -> u32 {
-    let code = 0;
+    let mut code = 0;
     let sei: SHELLEXECUTEINFOW = mem::zeroed();
     let verb = "runas\0".encode_utf16().collect::<Vec<u16>>();
-    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+    CoInitializeEx(
+        ptr::null(),
+        COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
+    );
 
-    sei.cbSize = mem::size_of::<SHELLEXECUTEINFOW>();
+    sei.cbSize = mem::size_of::<SHELLEXECUTEINFOW>() as _;
     sei.lpVerb = verb.as_ptr();
     sei.lpFile = cmd;
     sei.lpParameters = args;
     sei.nShow = if show { SW_NORMAL } else { SW_HIDE };
 
-    if !ShellExecuteExW(&sei) || sei.hProcess == ptr::null() {
-        return -1;
+    if ShellExecuteExW(&mut sei) == 0 || sei.hProcess == ptr::null() {
+        return !0;
     }
 
     WaitForSingleObject(sei.hProcess, INFINITE);
 
-    if GetExitCodeProcess(sei.hProcess, &code) == 0 {
-        -1
+    if GetExitCodeProcess(sei.hProcess, &mut code) == 0 {
+        !0
     } else {
         code
     }
@@ -73,11 +77,10 @@ pub fn runas_impl(cmd: &Command) -> io::Result<ExitStatus> {
         .collect::<Vec<_>>();
 
     unsafe {
-        let show = if cmd.hide { 0 } else { 1 };
         Ok(mem::transmute(win_runas(
             file.as_ptr(),
             params.as_ptr(),
-            show,
+            !cmd.hide,
         )))
     }
 }
