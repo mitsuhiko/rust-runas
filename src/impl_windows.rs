@@ -13,7 +13,7 @@ use windows_sys::Win32::System::Threading::GetExitCodeProcess;
 use windows_sys::Win32::System::Threading::WaitForSingleObject;
 use windows_sys::Win32::System::Threading::INFINITE;
 use windows_sys::Win32::UI::Shell::{ShellExecuteExW, SHELLEXECUTEINFOW};
-use windows_sys::Win32::UI::WindowsAndMessaging::{SW_HIDE, SW_SHOW};
+use windows_sys::Win32::UI::WindowsAndMessaging::{SW_HIDE, SW_NORMAL};
 
 use crate::Command;
 
@@ -30,9 +30,9 @@ unsafe fn win_runas(cmd: *const c_ushort, args: *const c_ushort, show: bool) -> 
     sei.lpVerb = verb.as_ptr();
     sei.lpFile = cmd;
     sei.lpParameters = args;
-    sei.nShow = if show { SW_NORMAL } else { SW_HIDE };
+    sei.nShow = if show { SW_NORMAL } else { SW_HIDE } as _;
 
-    if ShellExecuteExW(&mut sei) == 0 || sei.hProcess == ptr::null() {
+    if ShellExecuteExW(&mut sei) == 0 || sei.hProcess == 0 {
         return !0;
     }
 
