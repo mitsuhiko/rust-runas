@@ -8,8 +8,8 @@ homepage = "https://github.com/mitsuhiko/rust-runas"
 documentation = "http://mitsuhiko.github.io/rust-runas/"
 license = "Apache-2.0"
 readme = "README.md"
-edition = "2018"
-rust-version = "1.48"
+edition = "2021"
+rust-version = "1.56"
 
 [dependencies]
 libc = "0.2.144"
