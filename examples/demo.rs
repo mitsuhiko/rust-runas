@@ -6,6 +6,7 @@ fn main() {
         "Status: {}",
         runas::Command::new("touch")
             .arg("/tmp/test.foo")
+            .gui(true)
             .force_prompt(false)
             .status()
             .expect("failed to execute")

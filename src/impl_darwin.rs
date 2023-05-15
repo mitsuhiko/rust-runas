@@ -7,12 +7,14 @@ use std::path::{Path, PathBuf};
 use std::process::ExitStatus;
 use std::ptr;
 
+use libc::{fcntl, fileno, waitpid, EINTR, F_GETOWN};
+use security_framework_sys::authorization::{
+    errAuthorizationSuccess, kAuthorizationFlagDefaults, kAuthorizationFlagDestroyRights,
+    AuthorizationCreate, AuthorizationExecuteWithPrivileges, AuthorizationFree, AuthorizationRef,
+};
+
 use crate::impl_unix::runas_impl as runas_sudo_impl;
 use crate::Command;
-
-extern "C" {
-    fn rust_darwin_gui_runas(cmd: *const i8, argv: *const *const i8) -> u32;
-}
 
 fn find_exe<P: AsRef<Path>>(exe_name: P) -> Option<PathBuf> {
     let exe_name = exe_name.as_ref().as_os_str();
@@ -47,6 +49,46 @@ macro_rules! make_cstring {
     };
 }
 
+unsafe fn gui_runas(prog: *const i8, argv: *const *const i8) -> i32 {
+    let mut authref: AuthorizationRef = ptr::null_mut();
+    let mut pipe: *mut libc::FILE = ptr::null_mut();
+
+    if AuthorizationCreate(
+        ptr::null(),
+        ptr::null(),
+        kAuthorizationFlagDefaults,
+        &mut authref,
+    ) != errAuthorizationSuccess
+    {
+        return -1;
+    }
+    if AuthorizationExecuteWithPrivileges(
+        authref,
+        prog,
+        kAuthorizationFlagDefaults,
+        argv as *const *mut _,
+        &mut pipe,
+    ) != errAuthorizationSuccess
+    {
+        AuthorizationFree(authref, kAuthorizationFlagDestroyRights);
+        return -1;
+    }
+
+    let pid = fcntl(fileno(pipe), F_GETOWN, 0);
+    let mut status = 0;
+    loop {
+        let r = waitpid(pid, &mut status, 0);
+        if r == -1 && io::Error::last_os_error().raw_os_error() == Some(EINTR) {
+            continue;
+        } else {
+            break;
+        }
+    }
+
+    AuthorizationFree(authref, kAuthorizationFlagDestroyRights);
+    status
+}
+
 fn runas_gui_impl(cmd: &Command) -> io::Result<ExitStatus> {
     let exe: OsString = match find_exe(&cmd.command) {
         Some(exe) => exe.into(),
@@ -62,12 +104,7 @@ fn runas_gui_impl(cmd: &Command) -> io::Result<ExitStatus> {
     let mut argv: Vec<_> = args.iter().map(|x| x.as_ptr()).collect();
     argv.push(ptr::null());
 
-    unsafe {
-        Ok(mem::transmute(rust_darwin_gui_runas(
-            prog.as_ptr(),
-            argv.as_ptr(),
-        )))
-    }
+    unsafe { Ok(mem::transmute(gui_runas(prog.as_ptr(), argv.as_ptr()))) }
 }
 
 pub fn runas_impl(cmd: &Command) -> io::Result<ExitStatus> {
